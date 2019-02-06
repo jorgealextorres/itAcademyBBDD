@@ -7,7 +7,7 @@ select Dest, avg(DepDelay) as averageDepartureDelay, avg(ArrDelay) as averageArr
 from Flights
 group by Dest;
 
-# Retard promig d’arribada dels vols, per mesos i segons l’aeroport origen. A més, volen que els resultat es mostrin de la següent 
+# 3. Retard promig d’arribada dels vols, per mesos i segons l’aeroport origen. A més, volen que els resultat es mostrin de la següent 
 # forma (fixa’t en l’ordre de les files):
 #   LAX, 2000, 01, 10
 #   LAX, 2000, 02, 30
@@ -22,37 +22,35 @@ order by Origin, colYear, colMonth asc;
 #from Flights
 #where Origin = "ABE" and colYear = 1990;
 
-# Retard promig d’arribada dels vols, per mesos i segons l’aeroport origen (mateixa consulta que abans i amb el mateix ordre). 
+# 4. Retard promig d’arribada dels vols, per mesos i segons l’aeroport origen (mateixa consulta que abans i amb el mateix ordre). 
 # Però a més, ara volen que en comptes del codi de l’aeroport es mostri el nom de la ciutat.
 #        Los Angeles, 2000, 01, retard
 #        Los Angeles, 2000, 02, retard
 select a.Airport, f.colYear, lpad(f.colMonth, 2, '0') as month, avg(f.ArrDelay) as averageArrivalDelay
-from Flights f, USAirports a
-where a.IATA = f.Origin
+from Flights f JOIN USAirports a on a.IATA = f.Origin
 group by f.Origin, f.colYear, f.colMonth
 order by a.Airport, f.colYear, f.colMonth asc;
 
-# Les companyies amb més vols cancelats. A més, han d’estar ordenades de forma que les companyies amb més cancel·lacions apareguin les primeres.
-select c.Description as carrier, count(*) numCancelledFights
+# 5. Les companyies amb més vols cancelats. A més, han d’estar ordenades de forma que les companyies amb més cancel·lacions apareguin les primeres.
+select c.Description as carrier, count(*) as numCancelledFights
 from Flights f, Carriers c
 where f.Cancelled = 1 
     and f.UniqueCarrier = c.CarrierCode
 group by f.UniqueCarrier
 order by count(*)  desc, c.Description asc;
 
-# L’identificador dels 10 avions que més distància han recorregut fent vols.
+# 6. L’identificador dels 10 avions que més distància han recorregut fent vols.
 select f.TailNum, sum(f.Distance) as milles
 from Flights f
 group by f.TailNum
 order by sum(f.Distance) desc
 limit 10;
 
-# Companyies amb el seu retard promig només d’aquelles les quals els seus vols arriben al seu destí amb un retràs promig major de 10 minuts.
+# 7. Companyies amb el seu retard promig només d’aquelles les quals els seus vols arriben al seu destí amb un retràs promig major de 10 minuts.
 select c.Description, avg(f.ArrDelay) as averageArrivalDelay
-from Flights f, Carriers c
-where f.ArrDelay > 10 
-   and	f.UniqueCarrier = c.CarrierCode
+from Flights f JOIN Carriers c ON f.UniqueCarrier = c.CarrierCode
 group by f.UniqueCarrier
+having avg(f.ArrDelay)  > 10
 order by avg(f.ArrDelay) desc, c.Description asc;
 
 
