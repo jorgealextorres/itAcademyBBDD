@@ -27,15 +27,14 @@ order by Origin, colYear, colMonth asc;
 #        Los Angeles, 2000, 01, retard
 #        Los Angeles, 2000, 02, retard
 select a.Airport, f.colYear, lpad(f.colMonth, 2, '0') as month, avg(f.ArrDelay) as averageArrivalDelay
-from Flights f JOIN USAirports a on a.IATA = f.Origin
+from Flights f INNER JOIN USAirports a on a.IATA = f.Origin
 group by f.Origin, f.colYear, f.colMonth
 order by a.Airport, f.colYear, f.colMonth asc;
 
 # 5. Les companyies amb més vols cancelats. A més, han d’estar ordenades de forma que les companyies amb més cancel·lacions apareguin les primeres.
 select c.Description as carrier, count(*) as numCancelledFights
-from Flights f, Carriers c
+from Flights f INNER JOIN Carriers c ON f.UniqueCarrier = c.CarrierCode
 where f.Cancelled = 1 
-    and f.UniqueCarrier = c.CarrierCode
 group by f.UniqueCarrier
 order by count(*)  desc, c.Description asc;
 
@@ -48,7 +47,7 @@ limit 10;
 
 # 7. Companyies amb el seu retard promig només d’aquelles les quals els seus vols arriben al seu destí amb un retràs promig major de 10 minuts.
 select c.Description, avg(f.ArrDelay) as averageArrivalDelay
-from Flights f JOIN Carriers c ON f.UniqueCarrier = c.CarrierCode
+from Flights f INNER JOIN Carriers c ON f.UniqueCarrier = c.CarrierCode
 group by f.UniqueCarrier
 having avg(f.ArrDelay)  > 10
 order by avg(f.ArrDelay) desc, c.Description asc;
